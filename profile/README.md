@@ -34,6 +34,12 @@ fnlla new my-app
 - Public runtime dependencies are served from `fnlla/packages`.
 - Starter bootstrap remains public and frictionless.
 - Framework source stays private for controlled release management.
+- Community policy docs are centrally maintained in `fnlla/.github` and synced to repos automatically.
+
+## Onboarding Tracks
+
+- Product teams: start from `fnlla/fnlla` (or `fnlla/installer`) and consume public package artifacts.
+- Maintainers: work in `fnlla/framework` and publish governed release outputs to the public ecosystem.
 
 ## Security
 

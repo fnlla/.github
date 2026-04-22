@@ -21,3 +21,11 @@
 
 - Community defaults and templates live in `fnlla/.github`.
 - `CODEOWNERS` is maintained per repository.
+- Community policy files are auto-synced by reusable workflow:
+  `fnlla/.github/.github/workflows/reusable-sync-community-health.yml`.
+
+## Registry Strategy
+
+- Public packages intended for open usage (for example `fnlla/fnlla`, `fnlla/installer`) are published on Packagist.
+- `fnlla/framework` stays private on GitHub and is not published on public Packagist.
+- Runtime package resolution for starter apps is handled by `fnlla/packages` composer repository metadata.
