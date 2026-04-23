@@ -1,0 +1,68 @@
+name: Reusable Community Health Sync
+
+on:
+  workflow_call:
+    inputs:
+      source_ref:
+        description: "Git ref in fnlla/.github used as sync source."
+        required: false
+        default: "main"
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target repository
+        uses: actions/checkout@v4
+
+      - name: Sync files from fnlla/.github defaults
+        shell: bash
+        env:
+          SOURCE_REF: ${{ inputs.source_ref }}
+        run: |
+          set -euo pipefail
+
+          SOURCE_BASE="https://raw.githubusercontent.com/fnlla/.github/${SOURCE_REF}"
+          mkdir -p .github/ISSUE_TEMPLATE
+
+          curl -fsSL "${SOURCE_BASE}/CODE_OF_CONDUCT.md" -o CODE_OF_CONDUCT.md
+          curl -fsSL "${SOURCE_BASE}/CONTRIBUTING.md" -o CONTRIBUTING.md
+          curl -fsSL "${SOURCE_BASE}/SECURITY.md" -o SECURITY.md
+          curl -fsSL "${SOURCE_BASE}/SUPPORT.md" -o SUPPORT.md
+          curl -fsSL "${SOURCE_BASE}/PULL_REQUEST_TEMPLATE.md" -o PULL_REQUEST_TEMPLATE.md
+          curl -fsSL "${SOURCE_BASE}/.github/ISSUE_TEMPLATE/config.yml" -o .github/ISSUE_TEMPLATE/config.yml
+          curl -fsSL "${SOURCE_BASE}/.github/ISSUE_TEMPLATE/bug_report.yml" -o .github/ISSUE_TEMPLATE/bug_report.yml
+          curl -fsSL "${SOURCE_BASE}/.github/ISSUE_TEMPLATE/feature_request.yml" -o .github/ISSUE_TEMPLATE/feature_request.yml
+
+      - name: Create pull request when defaults changed
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          add-paths: |
+            CODE_OF_CONDUCT.md
+            CONTRIBUTING.md
+            SECURITY.md
+            SUPPORT.md
+            PULL_REQUEST_TEMPLATE.md
+            .github/ISSUE_TEMPLATE/config.yml
+            .github/ISSUE_TEMPLATE/bug_report.yml
+            .github/ISSUE_TEMPLATE/feature_request.yml
+          commit-message: "chore: sync community health defaults from fnlla/.github"
+          branch: "automation/sync-community-health"
+          delete-branch: true
+          title: "chore: sync community health defaults"
+          body: |
+            This PR syncs organization-wide community health defaults from `fnlla/.github`.
+
+            Synced files:
+            - `CODE_OF_CONDUCT.md`
+            - `CONTRIBUTING.md`
+            - `SECURITY.md`
+            - `SUPPORT.md`
+            - `PULL_REQUEST_TEMPLATE.md`
+            - `.github/ISSUE_TEMPLATE/*`
