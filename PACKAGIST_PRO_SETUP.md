@@ -5,6 +5,7 @@
 - `fnlla/fnlla`: published (`v3.0.6`), GitHub webhook active.
 - `fnlla/installer`: published (`v1.0.0`), GitHub webhook active.
 - `fnlla/framework`: intentionally not published on public Packagist (private source-of-truth repo).
+- `fnlla/packages`: intentionally treated as Composer repository distribution hub, not a standalone Packagist package.
 
 ## Mandatory Baseline
 

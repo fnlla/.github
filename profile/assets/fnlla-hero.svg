@@ -1,0 +1,47 @@
+﻿<svg width="1440" height="520" viewBox="0 0 1440 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1440" y2="520" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1220"/>
+      <stop offset="1" stop-color="#12324A"/>
+    </linearGradient>
+    <linearGradient id="line" x1="860" y1="100" x2="1260" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67E8F9"/>
+      <stop offset="1" stop-color="#0EA5E9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1440" height="520" fill="url(#bg)"/>
+  <circle cx="1190" cy="130" r="230" fill="#0E7490" fill-opacity="0.18"/>
+  <circle cx="1250" cy="420" r="170" fill="#22D3EE" fill-opacity="0.16"/>
+  <g opacity="0.9">
+    <rect x="92" y="96" width="96" height="96" rx="24" fill="#0F172A"/>
+    <path d="M118 116H162V130H132V144H155V158H132V176H118V116Z" fill="#67E8F9"/>
+    <rect x="152" y="116" width="14" height="60" rx="7" fill="#E2E8F0"/>
+  </g>
+  <text x="230" y="164" fill="#E2E8F0" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="700">FNLLA</text>
+  <text x="232" y="214" fill="#A5F3FC" font-family="Segoe UI, Arial, sans-serif" font-size="24">Enterprise PHP Platform for Product Teams</text>
+  <rect x="232" y="254" width="440" height="40" rx="20" fill="#0E7490" fill-opacity="0.25"/>
+  <text x="256" y="280" fill="#CFFAFE" font-family="Segoe UI, Arial, sans-serif" font-size="18">Docs. Runtime. Tooling. Governance.</text>
+  <g stroke="url(#line)" stroke-width="4" fill="none" opacity="0.75">
+    <path d="M850 130H990L1070 190H1240"/>
+    <path d="M850 210H1010L1080 270H1240"/>
+    <path d="M850 290H970L1050 350H1240"/>
+  </g>
+  <g fill="#082F49" stroke="#22D3EE" stroke-width="2">
+    <rect x="720" y="108" width="130" height="48" rx="12"/>
+    <rect x="720" y="188" width="130" height="48" rx="12"/>
+    <rect x="720" y="268" width="130" height="48" rx="12"/>
+    <rect x="720" y="348" width="130" height="48" rx="12"/>
+    <rect x="1240" y="164" width="130" height="48" rx="12"/>
+    <rect x="1240" y="244" width="130" height="48" rx="12"/>
+    <rect x="1240" y="324" width="130" height="48" rx="12"/>
+  </g>
+  <g fill="#A5F3FC" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600">
+    <text x="748" y="139">framework</text>
+    <text x="758" y="219">packages</text>
+    <text x="760" y="299">docs</text>
+    <text x="742" y="379">dev-env</text>
+    <text x="1260" y="195">quality</text>
+    <text x="1256" y="275">installer</text>
+    <text x="1256" y="355">vscode-ext</text>
+  </g>
+</svg>
