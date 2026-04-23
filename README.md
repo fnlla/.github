@@ -20,9 +20,13 @@ references.
 - Issue templates (`.github/ISSUE_TEMPLATE/*`)
 - Pull request template (`PULL_REQUEST_TEMPLATE.md`)
 - Reusable sync workflow (`.github/workflows/reusable-sync-community-health.yml`)
+- Reusable release workflow (`.github/workflows/reusable-release.yml`)
+- Reusable CodeQL workflow (`.github/workflows/reusable-codeql.yml`)
 - Repository map (`REPOSITORIES.md`)
 - Packagist operations baseline (`PACKAGIST_PRO_SETUP.md`)
 - Ecosystem versioning policy (`VERSIONING_POLICY.md`)
+- Ecosystem release policy (`RELEASE_POLICY.md`)
+- Security response SLA (`SECURITY_RESPONSE_SLA.md`)
 
 ## Governance Model
 
@@ -50,3 +54,10 @@ FNLLA repositories do not need identical tag numbers at every release. Instead:
 3. Cross-repo compatibility is tracked through constraints, changelogs, and release notes.
 
 Details: `VERSIONING_POLICY.md`.
+
+## Release Baseline
+
+All FNLLA repositories should publish releases through the reusable workflow in this repository,
+with consistent tag validation and optional changelog enforcement.
+
+Details: `RELEASE_POLICY.md`.

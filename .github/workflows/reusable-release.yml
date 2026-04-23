@@ -1,0 +1,195 @@
+﻿name: Reusable Release
+
+on:
+  workflow_call:
+    inputs:
+      tag_name:
+        description: "Release tag (for example v1.2.3). If empty, workflow expects tag push context."
+        required: false
+        default: ""
+        type: string
+      create_tag:
+        description: "Create and push tag before publishing release."
+        required: false
+        default: false
+        type: boolean
+      validate_semver:
+        description: "Validate tag format as vX.Y.Z with optional prerelease/build suffix."
+        required: false
+        default: true
+        type: boolean
+      changelog_path:
+        description: "Optional changelog file path for release checks and notes extraction."
+        required: false
+        default: ""
+        type: string
+      require_changelog_section:
+        description: "Require changelog section matching tag heading."
+        required: false
+        default: false
+        type: boolean
+      extract_notes_from_changelog:
+        description: "Extract release notes from changelog section."
+        required: false
+        default: false
+        type: boolean
+      prerelease:
+        description: "Mark GitHub release as prerelease."
+        required: false
+        default: false
+        type: boolean
+      artifact_glob:
+        description: "Optional glob pattern of files attached to release."
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release tag
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag="${{ inputs.tag_name }}"
+
+          if [[ -z "$tag" ]]; then
+            if [[ "${GITHUB_REF_TYPE}" != "tag" ]]; then
+              echo "No tag provided. Use tag push or pass inputs.tag_name."
+              exit 1
+            fi
+            tag="${GITHUB_REF_NAME}"
+          fi
+
+          if [[ "${{ inputs.validate_semver }}" == "true" ]]; then
+            if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+              echo "Tag must match vX.Y.Z or semver prerelease/build (got: $tag)"
+              exit 1
+            fi
+          fi
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Validate changelog section
+        if: ${{ inputs.require_changelog_section }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          changelog="${{ inputs.changelog_path }}"
+          tag="${{ steps.meta.outputs.tag }}"
+
+          if [[ -z "$changelog" ]]; then
+            echo "changelog_path must be provided when require_changelog_section=true"
+            exit 1
+          fi
+
+          if [[ ! -f "$changelog" ]]; then
+            echo "Changelog file not found: $changelog"
+            exit 1
+          fi
+
+          if ! grep -Eq "^## \[$tag\]( |-|$)" "$changelog"; then
+            echo "Missing changelog section for $tag in $changelog"
+            exit 1
+          fi
+
+      - name: Extract notes from changelog
+        if: ${{ inputs.extract_notes_from_changelog }}
+        id: notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          changelog="${{ inputs.changelog_path }}"
+          tag="${{ steps.meta.outputs.tag }}"
+
+          if [[ -z "$changelog" || ! -f "$changelog" ]]; then
+            echo "Changelog file required for notes extraction"
+            exit 1
+          fi
+
+          awk -v v="$tag" '
+            $0 ~ "^## \\[" v "\\]( |-|$)" {capture=1; next}
+            capture && $0 ~ "^## \\[" {exit}
+            capture {print}
+          ' "$changelog" > RELEASE_NOTES.md
+
+          if [[ ! -s RELEASE_NOTES.md ]]; then
+            echo "Release notes extraction produced empty output"
+            exit 1
+          fi
+
+          echo "notes_path=RELEASE_NOTES.md" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push tag
+        if: ${{ inputs.create_tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ steps.meta.outputs.tag }}"
+
+          if git rev-parse "$tag" >/dev/null 2>&1; then
+            echo "Tag already exists: $tag"
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "$tag"
+          git push origin "$tag"
+
+      - name: Collect release artifacts
+        if: ${{ inputs.artifact_glob != '' }}
+        id: artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          pattern='${{ inputs.artifact_glob }}'
+          mapfile -t files < <(compgen -G "$pattern" || true)
+
+          if [[ ${#files[@]} -eq 0 ]]; then
+            echo "No artifacts matched pattern: $pattern"
+            exit 1
+          fi
+
+          printf '%s\n' "${files[@]}" > RELEASE_FILES.txt
+          echo "files_path=RELEASE_FILES.txt" >> "$GITHUB_OUTPUT"
+
+      - name: Publish release from changelog notes
+        if: ${{ inputs.extract_notes_from_changelog && inputs.artifact_glob == '' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.tag }}
+          body_path: ${{ steps.notes.outputs.notes_path }}
+          prerelease: ${{ inputs.prerelease }}
+
+      - name: Publish release from generated notes
+        if: ${{ !inputs.extract_notes_from_changelog && inputs.artifact_glob == '' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.tag }}
+          generate_release_notes: true
+          prerelease: ${{ inputs.prerelease }}
+
+      - name: Publish release with artifacts
+        if: ${{ inputs.artifact_glob != '' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.tag }}
+          generate_release_notes: ${{ !inputs.extract_notes_from_changelog }}
+          body_path: ${{ inputs.extract_notes_from_changelog && steps.notes.outputs.notes_path || '' }}
+          files: ${{ inputs.artifact_glob }}
+          prerelease: ${{ inputs.prerelease }}

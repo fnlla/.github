@@ -21,6 +21,8 @@ Report security issues privately via:
 - Triage update: within 5 business days
 - Remediation timeline: provided after triage based on severity
 
+Detailed severity-based targets are documented in `SECURITY_RESPONSE_SLA.md`.
+
 ## Disclosure
 
 Fnlla follows coordinated disclosure. We will credit reporters when appropriate
